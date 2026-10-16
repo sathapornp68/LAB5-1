@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">NoteApp (Event-Driven)</string>
+    <string name="title_notes_list">รายการโน้ตทั้งหมด</string>
+    <string name="btn_add_new_note">+ เพิ่มโน้ตใหม่</string>
+    <string name="title_add_note">เพิ่มโน้ตใหม่ (Add Note)</string>
+    <string name="section_user_info">ข้อมูลผู้ใช้ (User Info)</string>
+    <string name="hint_user_name">ชื่อผู้ใช้ (User Name)</string>
+    <string name="hint_user_email">อีเมล (Email)</string>
+    <string name="section_note_info">ข้อมูลโน้ต (Note Info)</string>
+    <string name="hint_note_title">หัวข้อโน้ต (Note Title)</string>
+    <string name="label_note_type">ประเภทโน้ต:</string>
+    <string name="type_text_note">TextNote (โน้ตข้อความ)</string>
+    <string name="type_checklist_note">CheckListNote (โน้ตเช็คลิสต์)</string>
+    <string name="hint_text_content">ข้อความโน้ต (Note Content)</string>
+    <string name="hint_checklist_item">รายการเช็คลิสต์ใหม่</string>
+    <string name="btn_add_item">เพิ่มรายการ</string>
+    <string name="btn_save">บันทึกโน้ต</string>
+    <string name="btn_cancel">ยกเลิก</string>
+    <string name="msg_note_added">บันทึกโน้ตเรียบร้อยแล้ว!</string>
+    <string name="msg_input_required">กรุณากรอกชื่อผู้ใช้และหัวข้อโน้ต</string>
+</resources>
