@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 /**
- * MainActivity displaying note list and receiving Note addition events via OnNoteAddedListener.
+ * View layer in MVC Pattern displaying note list and receiving updates via Controller.
  */
 public class MainActivity extends AppCompatActivity implements OnNoteAddedListener {
 
@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity implements OnNoteAddedListen
     private TextView tvEmptyState;
     private Button btnAddNote;
     private NoteAdapter adapter;
+    private NoteController noteController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,11 +40,14 @@ public class MainActivity extends AppCompatActivity implements OnNoteAddedListen
             return insets;
         });
 
+        // Initialize Controller
+        noteController = NoteController.getInstance();
+
         initViews();
         setupRecyclerView();
 
-        // Register custom event listener to listen for newly added notes
-        NoteRepository.getInstance().addOnNoteAddedListener(this);
+        // Register event listener via Controller
+        noteController.registerNoteAddedListener(this);
 
         // Event-driven OnClickListener: Navigate to AddNoteActivity
         btnAddNote.setOnClickListener(v -> {
@@ -59,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements OnNoteAddedListen
     }
 
     private void setupRecyclerView() {
-        List<Note> notesList = NoteRepository.getInstance().getNotes();
+        List<Note> notesList = noteController.getAllNotes();
         adapter = new NoteAdapter(this, notesList);
         rvNotes.setLayoutManager(new LinearLayoutManager(this));
         rvNotes.setAdapter(adapter);
@@ -74,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements OnNoteAddedListen
 
     private void refreshNotesList() {
         if (adapter != null) {
-            List<Note> notes = NoteRepository.getInstance().getNotes();
+            List<Note> notes = noteController.getAllNotes();
             adapter.updateNotes(notes);
             updateEmptyState();
         }
@@ -94,13 +98,13 @@ public class MainActivity extends AppCompatActivity implements OnNoteAddedListen
     @Override
     public void onNoteAdded(Note note) {
         refreshNotesList();
-        Toast.makeText(this, "Event Received: New Note added (" + note.getTitle() + " by " + note.getUser().getName() + ")", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "MVC Controller Event: New Note added (" + note.getTitle() + " by " + note.getUser().getName() + ")", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Clean up event listener registration
-        NoteRepository.getInstance().removeOnNoteAddedListener(this);
+        // Clean up listener via Controller
+        noteController.unregisterNoteAddedListener(this);
     }
 }

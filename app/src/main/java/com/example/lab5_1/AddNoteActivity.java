@@ -20,6 +20,10 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * View layer in MVC Pattern for adding new notes.
+ * Delegates creation and persistence to NoteController.
+ */
 public class AddNoteActivity extends AppCompatActivity {
 
     private TextInputEditText etUserName, etUserEmail;
@@ -29,12 +33,16 @@ public class AddNoteActivity extends AppCompatActivity {
     private LinearLayout llTextNoteContainer, llCheckListContainer, llCheckListItems;
     private Button btnAddCheckListItem, btnSaveNote, btnCancel;
 
+    private NoteController noteController;
     private final List<CheckListItem> pendingCheckListItems = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_note);
+
+        // Initialize Controller
+        noteController = NoteController.getInstance();
 
         initViews();
         setupEventListeners();
@@ -61,7 +69,7 @@ public class AddNoteActivity extends AppCompatActivity {
     }
 
     private void setupEventListeners() {
-        // Event 1: RadioGroup selection change event (Event-driven toggle between TextNote and CheckListNote)
+        // RadioGroup selection change event toggling forms
         rgNoteType.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == R.id.rbTextNote) {
                 llTextNoteContainer.setVisibility(View.VISIBLE);
@@ -72,13 +80,8 @@ public class AddNoteActivity extends AppCompatActivity {
             }
         });
 
-        // Event 2: Click event to add a item to CheckList Note
         btnAddCheckListItem.setOnClickListener(v -> addCheckListItem());
-
-        // Event 3: Click event to Save Note
         btnSaveNote.setOnClickListener(v -> saveNote());
-
-        // Event 4: Click event to Cancel
         btnCancel.setOnClickListener(v -> finish());
     }
 
@@ -117,24 +120,20 @@ public class AddNoteActivity extends AppCompatActivity {
         String userEmail = etUserEmail.getText() != null ? etUserEmail.getText().toString().trim() : "";
         String title = etNoteTitle.getText() != null ? etNoteTitle.getText().toString().trim() : "";
 
-        if (TextUtils.isEmpty(userName) || TextUtils.isEmpty(title)) {
+        boolean success;
+
+        // Delegate Model creation & persistence to Controller (MVC Pattern)
+        if (rbTextNote.isChecked()) {
+            String content = etTextNoteContent.getText() != null ? etTextNoteContent.getText().toString().trim() : "";
+            success = noteController.createAndAddTextNote(userName, userEmail, title, content);
+        } else {
+            success = noteController.createAndAddCheckListNote(userName, userEmail, title, new ArrayList<>(pendingCheckListItems));
+        }
+
+        if (!success) {
             Toast.makeText(this, getString(R.string.msg_input_required), Toast.LENGTH_SHORT).show();
             return;
         }
-
-        // Create User instance storing user data
-        User user = new User(userName, userEmail);
-        Note noteToSave;
-
-        if (rbTextNote.isChecked()) {
-            String content = etTextNoteContent.getText() != null ? etTextNoteContent.getText().toString().trim() : "";
-            noteToSave = new TextNote(title, user, content);
-        } else {
-            noteToSave = new CheckListNote(title, user, new ArrayList<>(pendingCheckListItems));
-        }
-
-        // Save note via NoteRepository which publishes the event to listeners
-        NoteRepository.getInstance().addNote(noteToSave);
 
         Toast.makeText(this, getString(R.string.msg_note_added), Toast.LENGTH_SHORT).show();
         finish();
